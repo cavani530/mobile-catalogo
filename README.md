@@ -42,5 +42,6 @@ Aplicativo mobile feito em **React Native com Expo** para listar produtos de uma
 
 1. Clonar o repositório:
    ```bash
-   git clone https://github.com/SEU_USUARIO/mobile-catalogo.git
+   git clone https://github.com/cavani530/mobile-catalogo.git
+
    cd mobile-catalogo
