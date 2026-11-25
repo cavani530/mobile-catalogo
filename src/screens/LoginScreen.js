@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
@@ -15,17 +14,22 @@ import { login } from '../store/slices/authSlice';
 function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const dispatch = useDispatch();
 
   const handleLogin = () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Erro', 'Preencha e-mail e senha.');
+    const normalizedEmail = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      setError('Informe um e-mail válido.');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Informe sua senha.');
       return;
     }
 
-    // Simulação de login
-    dispatch(login({ email }));
+    dispatch(login({ email: normalizedEmail }));
   };
 
   return (
@@ -55,7 +59,9 @@ function LoginScreen() {
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        {error ? <Text accessibilityLiveRegion="polite" style={styles.error}>{error}</Text> : null}
+
+        <TouchableOpacity accessibilityRole="button" style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
       </View>
@@ -72,6 +78,7 @@ const styles = StyleSheet.create({
   },
   box: {
     width: '90%',
+    maxWidth: 440,
     backgroundColor: '#1E1E1E',
     padding: 24,
     borderRadius: 12,
@@ -90,6 +97,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     color: '#FFFFFF',
     marginBottom: 12,
+  },
+  error: {
+    color: '#FF8080',
+    marginBottom: 8,
   },
   button: {
     marginTop: 8,

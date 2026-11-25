@@ -1,38 +1,21 @@
-import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Image,
     ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
-import api from '../services/api';
+import useProductRequest from '../hooks/useProductRequest';
 
 function ProductDetailsScreen({ route }) {
   const { id } = route.params;
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const loadProduct = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const response = await api.get(`/products/${id}`);
-        setProduct(response.data);
-      } catch (err) {
-        console.log(err);
-        setError('Erro ao carregar detalhes do produto.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProduct();
-  }, [id]);
+  const { data: product, loading, error, retry } = useProductRequest(
+    `/products/${id}`,
+    'Erro ao carregar detalhes do produto.'
+  );
 
   if (loading) {
     return (
@@ -46,6 +29,9 @@ function ProductDetailsScreen({ route }) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity accessibilityRole="button" onPress={retry}>
+          <Text style={styles.errorText}>Tentar novamente</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -64,7 +50,7 @@ function ProductDetailsScreen({ route }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: product.thumbnail }} style={styles.image} />
+      <Image source={{ uri: product.thumbnail }} style={styles.image} resizeMode="contain" />
 
       <Text style={styles.title}>{product.title}</Text>
 
@@ -91,6 +77,7 @@ function ProductDetailsScreen({ route }) {
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
     padding: 16,
     backgroundColor: '#121212',
   },
@@ -103,6 +90,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 260,
+    backgroundColor: '#F2F2F2',
     borderRadius: 12,
     marginBottom: 16,
   },
@@ -145,6 +133,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   errorText: {
+    paddingVertical: 8,
     color: '#FF5252',
   },
 });

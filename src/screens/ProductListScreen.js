@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import ProductCard from '../components/ProductCard';
-import api from '../services/api';
+import useProductRequest from '../hooks/useProductRequest';
 import { logout } from '../store/slices/authSlice';
 
 const CATEGORIES = {
@@ -33,32 +33,14 @@ function ProductListScreen({ gender }) {
   const [selectedCategory, setSelectedCategory] = useState(
     CATEGORIES[gender][0].key
   );
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
+  const { data, error, loading, retry } = useProductRequest(
+    `/products/category/${selectedCategory}`,
+    'Erro ao carregar produtos.'
+  );
+  const products = data?.products ?? [];
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
   const genderTitle = gender === 'men' ? 'Masculino' : 'Feminino';
-
-  useEffect(() => {
-    fetchProducts(selectedCategory);
-  }, [selectedCategory]);
-
-  const fetchProducts = async (category) => {
-    try {
-      setLoading(true);
-      setError('');
-      const response = await api.get(`/products/category/${category}`);
-      setProducts(response.data.products || []);
-    } catch (err) {
-      console.log(err);
-      setError('Erro ao carregar produtos. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleProductPress = (item) => {
     navigation.navigate('ProductDetails', { id: item.id });
@@ -110,10 +92,20 @@ function ProductListScreen({ gender }) {
         <ActivityIndicator style={styles.loading} size="small" />
       )}
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? (
+        <View>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity accessibilityRole="button" onPress={retry}>
+            <Text style={styles.errorText}>Tentar novamente</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
 
       <FlatList
         data={products}
+        ListEmptyComponent={!loading && !error ? (
+          <Text style={styles.emptyText}>Nenhum produto nesta categoria.</Text>
+        ) : null}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <ProductCard item={item} onPress={() => handleProductPress(item)} />
@@ -179,6 +171,11 @@ const styles = StyleSheet.create({
     color: '#FF5252',
     textAlign: 'center',
     marginVertical: 8,
+  },
+  emptyText: {
+    color: '#BBBBBB',
+    textAlign: 'center',
+    marginTop: 16,
   },
   listContent: {
     paddingBottom: 16,
