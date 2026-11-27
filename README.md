@@ -62,4 +62,4 @@ As capturas foram feitas na versão web do Expo, em viewport de celular. O [anex
 
 ## Vídeo pitch
 
-[Baixar a demonstração em MP4](docs/Pitch-Catalogo-Mobile.mp4). O vídeo mostra login, abas, detalhes, tratamento de erro e saída, com narração sintetizada e gravação da versão web do Expo em resolução móvel.
+[Baixar a demonstração em MP4](docs/Pitch-Catalogo-Mobile.mp4). O vídeo mostra login, abas, detalhes, tratamento de erro e saída, com narração de Diogo Fuentes Pereira e gravação da versão web do Expo em resolução móvel.
